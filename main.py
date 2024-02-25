@@ -1,14 +1,15 @@
-from src.neuralnetwork import ResnetUnetHybrid
-import src.predictions as predictions
 import argparse
 import cv2
+from src.neuralnetwork import ResnetUnetHybrid
+import src.predictions as predictions
+
 def get_arguments():
     """Get command line arguments."""
     parser = argparse.ArgumentParser()
     parser.add_argument('-v', '--video_path', required=False, type=str, help='Path to the input video.')
     return parser.parse_args()
 
-def main(frame=None, model=None,device=None):
+def main(frame=None, model=None, device=None):
     if frame is None:
         args = get_arguments()
         if args.video_path:
