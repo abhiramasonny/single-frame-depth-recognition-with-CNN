@@ -5,6 +5,9 @@ from typing import Optional, Tuple
 import numpy as np
 import math
 from torchvision import transforms
+import tkinter as tk
+from tkinter import filedialog, ttk
+import tkinter.simpledialog as simpledialog
 
 HEIGHT: int = 256
 WIDTH: int = 320
@@ -114,3 +117,48 @@ class ImageProcessor:
                 break
         cap.release()
         cv2.destroyAllWindows()
+
+    @staticmethod
+    def predict_webcam(camera_id):
+        try:
+            device = torch.device('mps')
+        except:
+            device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+        print('Use GPU: {}'.format(str(device) != 'cpu'))
+        print('Loading model')
+        model = ResnetUnetHybrid.load_pretrained(device=device)
+        model.eval()
+
+        cap = cv2.VideoCapture(camera_id)
+        while(cap.isOpened()):
+            ret, frame = cap.read()
+            if ret == True:
+                frame = ImageProcessor.scale_image(frame)
+                frame = ImageProcessor.center_crop(frame)
+                inp = ImageProcessor.img_transform(frame)
+                inp = inp[None, :, :, :].to(device)
+
+                output = model(inp)
+
+                output = output.cpu()[0].data.numpy()
+                img_display = np.copy(frame)
+
+                img_display = cv2.resize(img_display, (1920, 1080))
+                cv2.imshow('org vid', img_display)
+
+                depth_map = ImageProcessor.depth_to_color(output)
+                depth_map = cv2.resize(depth_map, (1920, 1080))
+                cv2.imshow('depth', depth_map)
+
+                if cv2.waitKey(25) & 0xFF == ord('q'):
+                    break
+            else:
+                break
+        cap.release()
+        cv2.destroyAllWindows()
+
+def select_file():
+    file_path = filedialog.askopenfilename()
+    if file_path:
+        ImageProcessor.predict_video(file_path)
