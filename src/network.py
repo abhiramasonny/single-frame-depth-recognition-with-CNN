@@ -99,7 +99,7 @@ class ConConv(nn.Module):
         return x1
 
 class ResnetUnetHybrid(nn.Module):
-    def __init__(self, block: nn.Module, layers: List[int], cfg_path: str = 'config.cfg') -> None:
+    def __init__(self, block: nn.Module, layers: List[int], cfg_path: str = 'src/config.cfg') -> None:
         self.inplanes: int = 64
         super(ResnetUnetHybrid, self).__init__()
         self.config = self.parse_config(cfg_path)
@@ -179,7 +179,7 @@ class ResnetUnetHybrid(nn.Module):
         return x
 
     @classmethod
-    def load_pretrained(cls, device: torch.device, load_path: str = 'hyb_net_weights.model') -> 'ResnetUnetHybrid':
+    def load_pretrained(cls, device: torch.device, load_path: str = 'model/hyb_net_weights.model') -> 'ResnetUnetHybrid':
         model = cls(Bottleneck, [3, 4, 6, 3])
         if not os.path.exists(load_path):
             print('Downloading model weights...')
