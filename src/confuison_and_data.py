@@ -5,7 +5,7 @@ import tarfile
 import numpy as np
 import torch
 import torch.nn.functional as F
-from src.network import ResnetUnetHybrid
+from src.neuralnetwork import ResnetUnetHybrid
 from typing import Optional, Tuple
 import math
 from torchvision import transforms
