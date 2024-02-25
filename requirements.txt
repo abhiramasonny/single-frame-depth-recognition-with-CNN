@@ -1,0 +1,7 @@
+cv2
+numpy
+matplotlib
+torch
+torchvision
+seaborn
+sikit-learn

@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera Feed</title>
+</head>
+<body>
+    <h1>Live Camera Feed</h1>
+    <video id="videoFeed" width="640" height="480" autoplay></video>
+    <canvas id="outputCanvas" width="640" height="480" style="display: flex;"></canvas>
+
+    <script>
+        const video = document.getElementById('videoFeed');
+        const canvas = document.getElementById('outputCanvas');
+        const ctx = canvas.getContext('2d');
+
+        async function getCameraStream() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+            } catch (err) {
+                console.error('Error accessing the camera:', err);
+            }
+        }
+
+        getCameraStream();
+
+        video.addEventListener('play', () => {
+            setInterval(() => {
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                canvas.toBlob(blob => {
+                    fetch('/process_frame', {
+                        method: 'POST',
+                        body: blob,
+                    })
+                    .then(response => response.blob())
+                    .then(processedBlob => {
+                        const reader = new FileReader();
+                        reader.onload = () => {
+                            const processedImg = new Image();
+                            processedImg.onload = () => {
+                                ctx.drawImage(processedImg, 0, 0, canvas.width, canvas.height);
+                            };
+                            processedImg.src = reader.result;
+                        };
+                        reader.readAsDataURL(processedBlob);
+                    })
+                    .catch(error => {
+                        console.error('Error processing frame:', error);
+                    });
+                }, 'image/jpeg');
+            }, 100);
+        });
+    </script>
+</body>
+</html>
