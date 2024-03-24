@@ -157,8 +157,3 @@ class ImageProcessor:
                 break
         cap.release()
         cv2.destroyAllWindows()
-
-def select_file():
-    file_path = filedialog.askopenfilename()
-    if file_path:
-        ImageProcessor.predict_video(file_path)
